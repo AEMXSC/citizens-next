@@ -1,0 +1,28 @@
+/*
+ * Brand tokens. This is the ONE file a customer skin touches. Populate it from
+ * the scrape via design-system-extractor / design-tokens (colors, fonts, radius)
+ * and, if the brand font is on Adobe Fonts, set NEXT_PUBLIC_FONT_KIT so the kit
+ * loads in <head> and the family names below resolve. Neutral defaults ship so
+ * the app looks reasonable before any skinning.
+ */
+
+:root {
+  /* Palette */
+  --brand-ink: #1a1a1a;
+  --brand-bg: #ffffff;
+  --brand-surface: #f5f6f8;
+  --brand-muted: #5b6270;
+  --brand-primary: #0a5c2b;
+  --brand-primary-ink: #ffffff;
+  --brand-border: #e2e5ea;
+
+  /* Type. Override the family names to the customer's fonts; the kit provides
+     the actual faces. Fallbacks keep layout stable before the kit loads. */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* Shape + rhythm */
+  --radius: 10px;
+  --gap: 24px;
+  --maxw: 1120px;
+}
