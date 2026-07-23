@@ -59,9 +59,10 @@
   --brand-cta: #d93d00;           /* Citizens orange */
   --brand-cta-hover: #ad3000;
 
-  /* Type: Fira Sans throughout, matching citizensbank.com */
+  /* Type: Fira Sans body; a serif display echoes Citizens' Addington face
+     (used for the app greeting and marketing headings). */
   --font-sans: "Fira Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
-  --font-serif: "Fira Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-serif: Georgia, "Times New Roman", "Fira Sans", serif;
 
   /* Shape + rhythm */
   --radius: 8px;

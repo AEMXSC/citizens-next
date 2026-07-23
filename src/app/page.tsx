@@ -1,40 +1,77 @@
-import { getDisclosures } from '@/lib/disclosures';
-import DisclosureCatalog from '@/components/DisclosureCatalog';
+import AppHeader from '@/components/AppHeader';
+import BottomNav from '@/components/BottomNav';
+import AccountCard from '@/components/AccountCard';
+import QuickActions from '@/components/QuickActions';
+import CreditScore from '@/components/CreditScore';
+import OfferCard from '@/components/OfferCard';
+import ArticleRail from '@/components/ArticleRail';
+import DisclosureNote from '@/components/DisclosureNote';
+import {
+  PERSONAL_ACCOUNTS,
+  CREDIT_ACCOUNTS,
+  personalTotal,
+  money,
+} from '@/lib/banking';
+import { getOffers, accountDisclosure } from '@/lib/content';
 
-// Home = the disclosure catalog. The single internal entry point where every
-// disclosure is visible regardless of type, owner, or where it is delivered.
+// The Citizens mobile-banking home screen. App shell (accounts, quick actions,
+// credit score) is core-banking data; the content surfaces (offers, articles,
+// disclosures) are Content Fragments, editable in Universal Editor and shared
+// with the EDS marketing site.
 export default function Home() {
-  const disclosures = getDisclosures();
+  const fdic = accountDisclosure();
 
   return (
-    <>
-      <header className="site-head">
-        <div className="site-head-inner">
-          <a className="site-logo" href="/" aria-label="Citizens">Citizens</a>
-          <span className="site-app-name">Disclosure Management</span>
-        </div>
-      </header>
+    <div className="app">
+      <AppHeader />
 
-      <main className="page">
-        <section className="intro">
-          <p className="eyebrow">Enterprise Disclosure Catalog</p>
-          <h1>One library for every disclosure, everywhere it is used</h1>
-          <p className="intro-text">
-            A single entry point to create, review, and govern every disclosure across
-            business lines. Each disclosure is a managed content fragment with a named
-            owner, a version history, and a record of where it may be delivered.
-          </p>
+      <main className="app-body">
+        <section className="app-section">
+          <div className="section-head">
+            <h2>Personal banking</h2>
+            <span className="section-total">Total: {money(personalTotal())}</span>
+          </div>
+          {PERSONAL_ACCOUNTS.map((a) => <AccountCard key={a.id} account={a} />)}
+          {fdic ? <DisclosureNote disclosure={fdic} /> : null}
         </section>
 
-        <DisclosureCatalog disclosures={disclosures} />
-      </main>
+        <QuickActions />
 
-      <footer className="site-foot">
-        <div className="site-foot-inner">
+        <section className="app-section">
+          <div className="section-head">
+            <h2>Credit cards</h2>
+          </div>
+          {CREDIT_ACCOUNTS.map((a) => <AccountCard key={a.id} account={a} />)}
+        </section>
+
+        <section className="app-section">
+          <div className="section-head">
+            <h2>For you</h2>
+          </div>
+          {getOffers().map((o) => <OfferCard key={o.id} offer={o} />)}
+        </section>
+
+        <section className="app-section">
+          <div className="section-head">
+            <h2>Financial wellness</h2>
+          </div>
+          <CreditScore />
+        </section>
+
+        <section className="app-section">
+          <div className="section-head">
+            <h2>Learn</h2>
+          </div>
+          <ArticleRail />
+        </section>
+
+        <footer className="app-foot">
           <span className="fdic" aria-label="FDIC" />
           <p>Member FDIC. Banking products are offered through Citizens Bank, N.A.</p>
-        </div>
-      </footer>
-    </>
+        </footer>
+      </main>
+
+      <BottomNav />
+    </div>
   );
 }

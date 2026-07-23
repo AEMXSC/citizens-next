@@ -17,10 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
     other['urn:adobe:aue:system:aemconnection'] = `aem:${author}`;
   }
   return {
-    title: 'Citizens — Disclosure Management',
+    title: 'Citizens Mobile Banking',
     description:
-      'The enterprise disclosure catalog: a single entry point to create, review, '
-      + 'govern, and deliver every disclosure, powered by AEM Content Fragments.',
+      'A headless online banking app: accounts, offers, articles, and disclosures '
+      + 'powered by AEM Content Fragments and editable in Universal Editor.',
     other,
   };
 }
