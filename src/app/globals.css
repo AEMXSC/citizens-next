@@ -1566,3 +1566,26 @@ a {
   .oh-head { font-size: 24px; }
   .greeting .gname { font-size: 27px; }
 }
+
+/* Credit-card CFs */
+.cards-section { background: var(--brand-surface); }
+.cards-inner { max-width: 1200px; margin: 0 auto; padding: 4px 24px 34px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+
+.ccard {
+  background: #fff;
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 5%);
+}
+
+.ccard-media { padding: 20px 20px 0; display: flex; align-items: center; justify-content: center; }
+.ccard-media img { width: 100%; max-width: 220px; height: auto; border-radius: 8px; }
+.ccard-body { padding: 16px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+.ccard-name { font-family: var(--font-serif); color: var(--brand-primary-dark); font-size: 17px; line-height: 1.2; margin: 0 0 8px; }
+.ccard-sum { font-size: 14px; color: var(--brand-muted); line-height: 1.5; margin: 0 0 14px; }
+.ccard-cta { margin-top: auto; align-self: flex-start; color: var(--brand-cta); font-weight: 700; font-size: 14px; text-decoration: none; }
+.ccard-cta::after { content: " \203A"; }

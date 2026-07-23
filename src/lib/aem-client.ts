@@ -37,13 +37,14 @@ export interface Offer {
 }
 
 // The showcase instance exposes Offer fragments via OfferByPath (there is no
-// OfferList query). These are the same four Offer CFs the NYL app and the
-// Citizens EDS "offer" block consume.
+// OfferList query). These are the five published Citizens Offer CFs under
+// citizens/en/offers.
 const OFFER_PATHS = [
-  '/content/dam/nyl/en/offers/nyl-life',
-  '/content/dam/nyl/en/offers/nyl-retirement',
-  '/content/dam/nyl/en/offers/nyl-investments',
-  '/content/dam/nyl/en/offers/nyl-whole-life',
+  '/content/dam/citizens/en/offers/citizens-checking',
+  '/content/dam/citizens/en/offers/citizens-savings',
+  '/content/dam/citizens/en/offers/citizens-credit-cards',
+  '/content/dam/citizens/en/offers/citizens-home-equity',
+  '/content/dam/citizens/en/offers/citizens-student-lending',
 ];
 
 /**

@@ -1,16 +1,13 @@
 import { money } from '@/lib/banking';
-import { getDisclosure } from '@/lib/disclosures';
+import type { DisclosureCF } from '@/lib/cf-delivery';
 import DisclosureNote from './DisclosureNote';
 
 const QUICK = ['Pay & Transfer', 'Deposit', 'Statements', 'Manage cards'];
 
 // The "Good Morning" member dashboard: greeting band, e-docs enroll notice,
-// "Your Products" cards, quick tiles, and the two disclosure Content Fragments
-// surfaced inline (FDIC standard + dynamic CD APY), linking to the full record.
-export default function Dashboard() {
-  const fdic = getDisclosure('deposit-products-fdic');
-  const apy = getDisclosure('3-month-cd-apy');
-
+// "Your Products" cards, quick tiles, and the disclosure Content Fragments
+// (citizens/en/disclosures) surfaced inline.
+export default function Dashboard({ disclosures }: { disclosures: readonly DisclosureCF[] }) {
   return (
     <section className="dashboard">
       <div className="greeting">
@@ -71,10 +68,13 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <div className="disc-strip">
-          {fdic ? <DisclosureNote disclosure={fdic} /> : null}
-          {apy ? <DisclosureNote disclosure={apy} /> : null}
-        </div>
+        {disclosures.length ? (
+          <div className="disc-strip">
+            {disclosures.map((d) => (
+              <DisclosureNote key={d.slug} title={d.title} bodyHtml={d.bodyHtml} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

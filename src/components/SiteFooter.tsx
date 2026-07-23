@@ -5,8 +5,8 @@ export default function SiteFooter() {
       <div className="foot-inner">
         <span className="foot-wm">Citizens</span>
         <span className="foot-note">
-          Demonstration experience for Adobe demo purposes only. Content delivered from
-          AEM Content Fragments via GraphQL.
+          Demonstration experience for Adobe demo purposes only. Offers, articles, cards,
+          and disclosures delivered live from AEM Content Fragments.
         </span>
       </div>
     </footer>
