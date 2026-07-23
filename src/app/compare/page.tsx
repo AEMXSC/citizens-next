@@ -19,7 +19,7 @@ const COMPARE_ROWS: [string, string, string][] = [
   ['Delivery', 'GraphQL persisted queries', 'JSON worker + query-index'],
   ['Web + headless', 'Marketing site AND every channel from one fragment', 'Headless / JSON only'],
   ['Localization', 'MSM + translation framework', 'No MSM equivalent'],
-  ['AI / campaign ops', 'GenStudio, Journey Optimizer, Workfront', 'Not integrated'],
+  ['AI / campaign ops', 'GenStudio, Journey Optimizer', 'Not integrated'],
   ['Maturity', 'Enterprise-proven', 'Early'],
   ['Stand-up cost & speed', 'Heavier — instance, ops, provisioning', 'Light, cheap, greenfield-fast'],
 ];
