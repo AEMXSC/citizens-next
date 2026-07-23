@@ -1356,6 +1356,32 @@ a {
   justify-content: center;
 }
 
+/* Hero image as a real <img> (UE-selectable), with a gradient overlay above it
+   and the text content above that. */
+.oh-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.offerhero .oh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(0 63 41 / 86%), rgb(0 63 41 / 25%) 78%);
+  z-index: 1;
+}
+
+.oh-pre,
+.oh-head,
+.oh-det,
+.oh-dots { position: relative; z-index: 2; }
+
+.oh-nav { z-index: 2; }
+
 .oh-pre {
   text-transform: uppercase;
   letter-spacing: 0.09em;

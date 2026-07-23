@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { imageUrl, type Offer } from '@/lib/aem-client';
 
-// Rotating offer hero, driven by AEM Offer Content Fragments (the same CFs the
-// NYL app and the Citizens EDS "offer" block consume). Auto-advances; prev/next
-// and dots for manual control. UE instrumentation kept for edit-in-place parity.
+// Rotating offer hero, driven by AEM Offer Content Fragments. The hero image is
+// a real <img> (not a CSS background) so Universal Editor can select/replace it
+// as a media asset; a gradient overlay sits above it via CSS. Auto-advances.
 export default function OfferHero({ offers }: { offers: readonly Offer[] }) {
   const [i, setI] = useState(0);
 
@@ -28,11 +28,18 @@ export default function OfferHero({ offers }: { offers: readonly Offer[] }) {
         data-aue-resource={resource}
         data-aue-type="component"
         data-aue-label={`Offer: ${offer.headline ?? ''}`}
-        style={{
-          backgroundImage:
-            `linear-gradient(90deg, rgba(0,63,41,0.86), rgba(0,63,41,0.25) 78%), url(${bg})`,
-        }}
       >
+        {bg ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="oh-img"
+            src={bg}
+            alt={offer.headline ?? ''}
+            data-aue-prop="heroImage"
+            data-aue-type="media"
+            data-aue-label="hero image"
+          />
+        ) : null}
         <button
           type="button"
           className="oh-nav oh-prev"
