@@ -17,10 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
     other['urn:adobe:aue:system:aemconnection'] = `aem:${author}`;
   }
   return {
-    title: 'AEM Headless UE Starter',
+    title: 'Citizens — Disclosure Management',
     description:
-      'A Next.js headless frontend that consumes AEM Content Fragments and is '
-      + 'live-editable in Universal Editor.',
+      'The enterprise disclosure catalog: a single entry point to create, review, '
+      + 'govern, and deliver every disclosure, powered by AEM Content Fragments.',
     other,
   };
 }

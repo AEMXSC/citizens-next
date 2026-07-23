@@ -1,44 +1,48 @@
 /*
- * Citizens Bank brand skin. Extracted from citizensbank.com (globalComponents +
- * foundation-support CSS) via the design-token recon. Palette and fonts are the
- * real Citizens brand.
- *
- * Fonts are hotlinked from Citizens' own asset host for the demo (same pragmatic
- * call as the NYL build). Durable path: self-host the woff/woff2 or serve via a
- * licensed kit; swap the URLs then. Only faces verified to return HTTP 200 are
- * referenced (Addington ships DemiBold woff2; Fira Sans ships woff).
+ * Citizens Bank brand skin. Palette and fonts extracted from citizensbank.com.
+ * Fira Sans is self-hosted from /public/fonts (the citizensbank.com asset host
+ * WAF/CORS-blocks cross-origin font requests, so hotlinking breaks in-browser).
+ * Fira Sans carries both body and headings, matching the live Citizens site.
  */
 
-/* Body: Fira Sans (Citizens' primary UI font) */
 @font-face {
   font-family: "Fira Sans";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: url("https://www.citizensbank.com/assets/CB_resources/fonts/fira-sans/FiraSans-Light.woff") format("woff");
+  src: url("/fonts/FiraSans-Light.woff") format("woff");
 }
+
 @font-face {
   font-family: "Fira Sans";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("https://www.citizensbank.com/assets/CB_resources/fonts/fira-sans/FiraSans-Regular.woff") format("woff");
+  src: url("/fonts/FiraSans-Regular.woff") format("woff");
 }
+
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/FiraSans-Medium.woff") format("woff");
+}
+
 @font-face {
   font-family: "Fira Sans";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("https://www.citizensbank.com/assets/CB_resources/fonts/fira-sans/FiraSans-SemiBold.woff") format("woff");
+  src: url("/fonts/FiraSans-SemiBold.woff") format("woff");
 }
 
-/* Display headings: Addington (Citizens' brand serif) */
 @font-face {
-  font-family: "Addington";
+  font-family: "Fira Sans";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("https://www.citizensbank.com/assets/CB_resources/fonts/addington/AddingtonCF-DemiBold.woff2") format("woff2");
+  src: url("/fonts/FiraSans-Bold.woff") format("woff");
 }
 
 :root {
@@ -52,13 +56,15 @@
   --brand-secondary: #044da2;     /* Citizens blue */
   --brand-primary-ink: #ffffff;
   --brand-border: #e9e9e9;
+  --brand-cta: #d93d00;           /* Citizens orange */
+  --brand-cta-hover: #ad3000;
 
-  /* Type: Fira Sans body, Addington serif display */
+  /* Type: Fira Sans throughout, matching citizensbank.com */
   --font-sans: "Fira Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
-  --font-serif: "Addington", Georgia, "Times New Roman", serif;
+  --font-serif: "Fira Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
 
   /* Shape + rhythm */
   --radius: 8px;
   --gap: 24px;
-  --maxw: 1120px;
+  --maxw: 1180px;
 }

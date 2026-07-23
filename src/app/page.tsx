@@ -1,61 +1,40 @@
-import { getAemConfig } from '@/lib/aem-config';
-import {
-  getArticles,
-  getOffers,
-  persistedPath,
-  type Article,
-  type Offer,
-} from '@/lib/aem-client';
-import { QUERIES } from '@/lib/queries';
-import ArticleGrid from '@/components/ArticleGrid';
-import OfferCarousel from '@/components/OfferCarousel';
+import { getDisclosures } from '@/lib/disclosures';
+import DisclosureCatalog from '@/components/DisclosureCatalog';
 
-export const dynamic = 'force-dynamic';
-
-// Read both collections server-side for SSR/SEO. Each read is isolated so one
-// empty or failing query never blanks the whole page.
-async function safeArticles(): Promise<readonly Article[]> {
-  try {
-    return await getArticles(getAemConfig());
-  } catch (err) {
-    console.error('[page] getArticles failed:', err);
-    return [];
-  }
-}
-
-async function safeOffers(): Promise<readonly Offer[]> {
-  try {
-    return await getOffers(getAemConfig());
-  } catch (err) {
-    console.error('[page] getOffers failed:', err);
-    return [];
-  }
-}
-
-export default async function Home() {
-  const config = getAemConfig();
-  const [articles, offers] = await Promise.all([safeArticles(), safeOffers()]);
-
-  // Relative proxy path the client carousel re-fetches through. Built from the
-  // server-only prefix so the client never needs to know it.
-  const offerRefreshPath = `/api${persistedPath(config.cfPrefix, QUERIES.offerList)}`;
+// Home = the disclosure catalog. The single internal entry point where every
+// disclosure is visible regardless of type, owner, or where it is delivered.
+export default function Home() {
+  const disclosures = getDisclosures();
 
   return (
-    <main className="page">
-      <header className="masthead">
-        <span className="brand">{config.brandName}</span>
+    <>
+      <header className="site-head">
+        <div className="site-head-inner">
+          <a className="site-logo" href="/" aria-label="Citizens">Citizens</a>
+          <span className="site-app-name">Disclosure Management</span>
+        </div>
       </header>
 
-      <OfferCarousel
-        initialOffers={offers}
-        refreshPath={offerRefreshPath}
-        editable={config.ueEnabled}
-      />
+      <main className="page">
+        <section className="intro">
+          <p className="eyebrow">Enterprise Disclosure Catalog</p>
+          <h1>One library for every disclosure, everywhere it is used</h1>
+          <p className="intro-text">
+            A single entry point to create, review, and govern every disclosure across
+            business lines. Each disclosure is a managed content fragment with a named
+            owner, a version history, and a record of where it may be delivered.
+          </p>
+        </section>
 
-      <section className="section">
-        <h2 className="section-title">Latest articles</h2>
-        <ArticleGrid articles={articles} editable={config.ueEnabled} />
-      </section>
-    </main>
+        <DisclosureCatalog disclosures={disclosures} />
+      </main>
+
+      <footer className="site-foot">
+        <div className="site-foot-inner">
+          <span className="fdic" aria-label="FDIC" />
+          <p>Member FDIC. Banking products are offered through Citizens Bank, N.A.</p>
+        </div>
+      </footer>
+    </>
   );
 }
