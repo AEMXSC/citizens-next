@@ -33,6 +33,7 @@ export interface Offer {
   readonly pretitle?: string;
   readonly headline?: string;
   readonly detail?: { readonly plaintext?: string; readonly html?: string };
+  readonly callToAction?: string;
   readonly heroImage?: CFImageRef;
 }
 
