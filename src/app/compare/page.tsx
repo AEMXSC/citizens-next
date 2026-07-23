@@ -128,6 +128,37 @@ export default async function ComparePage() {
         </table>
       </section>
 
+      <section className="cmp-flow-wrap">
+        <h2 className="cmp-h2">Setup &amp; authoring workflow</h2>
+        <div className="cmp-flow-grid">
+          <div className="cmp-flow-col">
+            <span className="cmp-persona cmp-persona-mkt">AEM Content Fragment</span>
+            <ol className="cmp-flow">
+              <li>Build the content model in the <strong>visual, drag-and-drop Model Editor</strong>.</li>
+              <li>Author a fragment by <strong>picking that model</strong> &mdash; anywhere, no per-folder setup.</li>
+              <li>Deliver via GraphQL persisted queries; edit in Universal Editor.</li>
+            </ol>
+            <p className="cmp-flow-take">Turnkey authoring &mdash; <em>assumes an AEM Cloud Service instance already exists.</em></p>
+          </div>
+          <div className="cmp-flow-col">
+            <span className="cmp-persona cmp-persona-dev">DA Structured Content</span>
+            <ol className="cmp-flow">
+              <li>Hand-write the <strong>schema as JSON</strong> in the Schema Editor.</li>
+              <li><strong>Configure the folder</strong> (<code>editor.path</code>) so its docs open in the form editor.</li>
+              <li>Author in the generated form; deliver as JSON from the da-sc worker.</li>
+            </ol>
+            <p className="cmp-flow-take">More upfront dev &mdash; <em>but runs on EDS with no AEM instance needed.</em></p>
+          </div>
+        </div>
+        <p className="cmp-flow-note">
+          <strong>It&rsquo;s all AEM.</strong> Content Fragments and DA Structured Content are both
+          Adobe AEM / Edge Delivery &mdash; this is not an AEM-vs-alternative decision, it&rsquo;s a
+          choice of <strong>content model within AEM</strong>: heavier CF + GraphQL (turnkey,
+          marketer-authored, governed) vs. lighter EDS / DA Structured Content (dev-configured schema
+          + JSON). Either way, the customer is on AEM.
+        </p>
+      </section>
+
       <section className="cmp-pick">
         <h2 className="cmp-h2">When to pick which</h2>
         <div className="cmp-pick-grid">

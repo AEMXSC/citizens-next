@@ -1715,6 +1715,20 @@ a {
 .cmp-pick-sc h3 { color: var(--brand-secondary); }
 .cmp-pick-both h3 { color: var(--brand-cta); }
 
+/* Setup & authoring workflow */
+.cmp-flow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.cmp-flow-col { border: 1px solid var(--brand-border); border-radius: 10px; padding: 22px; background: #fff; }
+.cmp-flow { margin: 12px 0 14px; padding-left: 20px; }
+.cmp-flow li { font-size: 14px; color: var(--brand-ink); line-height: 1.5; margin: 8px 0; }
+.cmp-flow li code { background: var(--brand-surface); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+.cmp-flow-take { font-size: 14px; color: var(--brand-muted); margin: 0; }
+.cmp-flow-take em { font-style: italic; color: var(--brand-ink); }
+.cmp-flow-note { margin: 18px 0 0; font-size: 13px; color: var(--brand-muted); line-height: 1.55; max-width: 92ch; }
+
+@media (width <= 820px) {
+  .cmp-flow-grid { grid-template-columns: 1fr; }
+}
+
 .cmp-note { margin-top: 32px; font-size: 12px; color: var(--brand-muted); }
 .cmp-note code { background: var(--brand-surface); border-radius: 4px; padding: 1px 6px; }
 
