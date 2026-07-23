@@ -30,13 +30,21 @@ export interface Article {
 
 export interface Offer {
   readonly _path?: string;
-  readonly eyebrow?: string;
+  readonly pretitle?: string;
   readonly headline?: string;
-  readonly description?: { readonly plaintext?: string; readonly html?: string };
-  readonly ctaText?: string;
-  readonly ctaLink?: string;
-  readonly image?: CFImageRef;
+  readonly detail?: { readonly plaintext?: string; readonly html?: string };
+  readonly heroImage?: CFImageRef;
 }
+
+// The showcase instance exposes Offer fragments via OfferByPath (there is no
+// OfferList query). These are the same four Offer CFs the NYL app and the
+// Citizens EDS "offer" block consume.
+const OFFER_PATHS = [
+  '/content/dam/nyl/en/offers/nyl-life',
+  '/content/dam/nyl/en/offers/nyl-retirement',
+  '/content/dam/nyl/en/offers/nyl-investments',
+  '/content/dam/nyl/en/offers/nyl-whole-life',
+];
 
 /**
  * Build a persisted-query path with matrix parameters, e.g.
@@ -102,17 +110,35 @@ export async function getArticles(config: AemConfig): Promise<readonly Article[]
   return json.data?.articleList?.items ?? [];
 }
 
+interface OfferByPathResponse {
+  data?: { offerByPath?: { item?: Offer } };
+}
+
 /**
- * Fetch the Offer list for the carousel in ONE query. If the tenant only has
- * OfferByPath (single), the caller can fall back; here we prefer the list.
- * Returns [] on empty/missing data.
+ * Fetch the Offer fragments for the hero carousel via OfferByPath, one per
+ * path, in parallel. Missing/failed offers are dropped so a single bad path
+ * never blanks the carousel.
  */
 export async function getOffers(config: AemConfig): Promise<readonly Offer[]> {
-  const json = await fetchPersisted<ListResponse<'offerList', Offer>>(
-    config,
-    QUERIES.offerList,
+  const results = await Promise.all(
+    OFFER_PATHS.map(async (path): Promise<Offer | null> => {
+      try {
+        const json = await fetchPersisted<OfferByPathResponse>(config, QUERIES.offerByPath, {
+          path,
+          variation: 'main',
+        });
+        const item = json.data?.offerByPath?.item;
+        return item ? { ...item, _path: path } : null;
+      } catch {
+        return null;
+      }
+    }),
   );
-  return json.data?.offerList?.items ?? [];
+  const offers: Offer[] = [];
+  for (const offer of results) {
+    if (offer) offers.push(offer);
+  }
+  return offers;
 }
 
 /** Best available delivery URL for a CF image reference. */

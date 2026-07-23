@@ -17,10 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
     other['urn:adobe:aue:system:aemconnection'] = `aem:${author}`;
   }
   return {
-    title: 'Citizens Mobile Banking',
+    title: 'Citizens — Online Banking',
     description:
-      'A headless online banking app: accounts, offers, articles, and disclosures '
-      + 'powered by AEM Content Fragments and editable in Universal Editor.',
+      'A headless online-banking dashboard: offers, articles, and disclosures '
+      + 'delivered from AEM Content Fragments via GraphQL, editable in Universal Editor.',
     other,
   };
 }

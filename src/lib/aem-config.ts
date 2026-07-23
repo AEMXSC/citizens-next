@@ -35,14 +35,21 @@ let warned = false;
  * Resolve the AEM configuration from the environment. Returns a frozen object
  * so callers cannot mutate shared config (immutability by default).
  */
+// Demo defaults for the XSC Showcase instance, so the deployed app renders live
+// Content Fragments without any env setup. Override any of these via .env.local
+// or the Vercel project env when pointing at another tenant.
+const DEMO_AUTHOR = 'https://author-p153659-e1614585.adobeaemcloud.com';
+const DEMO_PUBLISH = 'https://publish-p153659-e1614585.adobeaemcloud.com';
+const DEMO_PREFIX = 'securbank';
+
 export function getAemConfig(): AemConfig {
-  const author = stripTrailingSlash(process.env.AEM_AUTHOR ?? '');
-  const publish = stripTrailingSlash(process.env.AEM_PUBLISH ?? '');
-  const cfPrefix = (process.env.AEM_CF_PREFIX ?? '').replace(/^\/+|\/+$/g, '');
+  const author = stripTrailingSlash(process.env.AEM_AUTHOR ?? '') || DEMO_AUTHOR;
+  const publish = stripTrailingSlash(process.env.AEM_PUBLISH ?? '') || DEMO_PUBLISH;
+  const cfPrefix = (process.env.AEM_CF_PREFIX ?? '').replace(/^\/+|\/+$/g, '') || DEMO_PREFIX;
   const token = process.env.AEM_TOKEN?.trim() || null;
   const ueEnabled = (process.env.UE_ENABLED ?? 'false').trim().toLowerCase() === 'true';
   const fontKit = process.env.NEXT_PUBLIC_FONT_KIT?.trim() || null;
-  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || 'Headless Demo';
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || 'Citizens';
 
   if (!warned && (!publish || !cfPrefix)) {
     // Fail loud, once, in server logs. Missing config is the most common

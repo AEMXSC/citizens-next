@@ -1,77 +1,48 @@
-import AppHeader from '@/components/AppHeader';
-import BottomNav from '@/components/BottomNav';
-import AccountCard from '@/components/AccountCard';
-import QuickActions from '@/components/QuickActions';
-import CreditScore from '@/components/CreditScore';
-import OfferCard from '@/components/OfferCard';
-import ArticleRail from '@/components/ArticleRail';
-import DisclosureNote from '@/components/DisclosureNote';
-import {
-  PERSONAL_ACCOUNTS,
-  CREDIT_ACCOUNTS,
-  personalTotal,
-  money,
-} from '@/lib/banking';
-import { getOffers, accountDisclosure } from '@/lib/content';
+import { getAemConfig } from '@/lib/aem-config';
+import { getArticles, getOffers, type Article, type Offer } from '@/lib/aem-client';
+import Masthead from '@/components/Masthead';
+import OfferHero from '@/components/OfferHero';
+import Dashboard from '@/components/Dashboard';
+import InsightsGrid from '@/components/InsightsGrid';
+import SiteFooter from '@/components/SiteFooter';
 
-// The Citizens mobile-banking home screen. App shell (accounts, quick actions,
-// credit score) is core-banking data; the content surfaces (offers, articles,
-// disclosures) are Content Fragments, editable in Universal Editor and shared
-// with the EDS marketing site.
-export default function Home() {
-  const fdic = accountDisclosure();
+// Citizens online-banking dashboard, mirroring the NYL headless app: masthead,
+// a rotating offer hero, the member dashboard, and Insights & guidance. Offers
+// and articles are live AEM Content Fragments read over GraphQL server-side;
+// the account data is the app shell.
+export const dynamic = 'force-dynamic';
+
+async function safeArticles(): Promise<readonly Article[]> {
+  try {
+    return await getArticles(getAemConfig());
+  } catch (err) {
+    console.error('[page] getArticles failed:', err);
+    return [];
+  }
+}
+
+async function safeOffers(): Promise<readonly Offer[]> {
+  try {
+    return await getOffers(getAemConfig());
+  } catch (err) {
+    console.error('[page] getOffers failed:', err);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const [articles, offers] = await Promise.all([safeArticles(), safeOffers()]);
 
   return (
-    <div className="app">
-      <AppHeader />
-
-      <main className="app-body">
-        <section className="app-section">
-          <div className="section-head">
-            <h2>Personal banking</h2>
-            <span className="section-total">Total: {money(personalTotal())}</span>
-          </div>
-          {PERSONAL_ACCOUNTS.map((a) => <AccountCard key={a.id} account={a} />)}
-          {fdic ? <DisclosureNote disclosure={fdic} /> : null}
-        </section>
-
-        <QuickActions />
-
-        <section className="app-section">
-          <div className="section-head">
-            <h2>Credit cards</h2>
-          </div>
-          {CREDIT_ACCOUNTS.map((a) => <AccountCard key={a.id} account={a} />)}
-        </section>
-
-        <section className="app-section">
-          <div className="section-head">
-            <h2>For you</h2>
-          </div>
-          {getOffers().map((o) => <OfferCard key={o.id} offer={o} />)}
-        </section>
-
-        <section className="app-section">
-          <div className="section-head">
-            <h2>Financial wellness</h2>
-          </div>
-          <CreditScore />
-        </section>
-
-        <section className="app-section">
-          <div className="section-head">
-            <h2>Learn</h2>
-          </div>
-          <ArticleRail />
-        </section>
-
-        <footer className="app-foot">
-          <span className="fdic" aria-label="FDIC" />
-          <p>Member FDIC. Banking products are offered through Citizens Bank, N.A.</p>
-        </footer>
+    <>
+      <Masthead />
+      <OfferHero offers={offers} />
+      <Dashboard />
+      <main className="wrap">
+        <h2 className="wrap-title">Insights &amp; guidance</h2>
+        <InsightsGrid articles={articles} />
       </main>
-
-      <BottomNav />
-    </div>
+      <SiteFooter />
+    </>
   );
 }
