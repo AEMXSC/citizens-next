@@ -1344,13 +1344,13 @@ a {
 
 .offerhero .oh {
   position: relative;
-  min-height: 196px;
+  min-height: 176px;
   border-radius: 12px;
   overflow: hidden;
   background-size: cover;
   background-position: center;
   color: #fff;
-  padding: 26px 74px;
+  padding: 22px 74px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1374,7 +1374,17 @@ a {
   max-width: 24ch;
 }
 
-.oh-det { font-size: 15px; line-height: 1.45; opacity: 0.95; max-width: 52ch; margin: 0; }
+.oh-det {
+  font-size: 15px;
+  line-height: 1.45;
+  opacity: 0.95;
+  max-width: 52ch;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .oh-dots { display: flex; gap: 8px; margin-top: 16px; }
 .oh-dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(255 255 255 / 45%); }
 .oh-dot.on { background: #fff; }
