@@ -45,6 +45,24 @@
   src: url("/fonts/FiraSans-Bold.woff") format("woff");
 }
 
+/* Addington — Citizens' brand display serif (self-hosted). Medium covers the
+   lighter display weights; DemiBold covers bold headings. */
+@font-face {
+  font-family: "Addington";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("/fonts/AddingtonCF-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Addington";
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url("/fonts/AddingtonCF-DemiBold.woff2") format("woff2");
+}
+
 :root {
   /* Palette (real Citizens brand) */
   --brand-ink: #231f20;
@@ -62,7 +80,7 @@
   /* Type: Fira Sans body; a serif display echoes Citizens' Addington face
      (used for the app greeting and marketing headings). */
   --font-sans: "Fira Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
-  --font-serif: Georgia, "Times New Roman", "Fira Sans", serif;
+  --font-serif: "Addington", Georgia, "Times New Roman", serif;
 
   /* Shape + rhythm */
   --radius: 8px;
