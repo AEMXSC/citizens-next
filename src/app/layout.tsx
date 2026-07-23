@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { getAemConfig } from '@/lib/aem-config';
 import './globals.css';
 
@@ -7,13 +6,14 @@ import './globals.css';
 // applies to every route. Two pieces, matching the proven NYL wiring:
 //   1. <meta name="urn:adobe:aue:system:aemconnection" content="aem:<author>">
 //   2. the UE cors.js script.
-// Both are emitted only when UE_ENABLED=true, so the public deploy ships a
-// clean <head> with no editor coupling.
+// Emitted whenever an author origin is configured (which it always is via the
+// demo default), so the editor can complete its handshake the same way the NYL
+// app does. cors.js only activates inside the Universal Editor iframe.
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { ueEnabled, author } = getAemConfig();
+  const { author } = getAemConfig();
   const other: Record<string, string> = {};
-  if (ueEnabled && author) {
+  if (author) {
     other['urn:adobe:aue:system:aemconnection'] = `aem:${author}`;
   }
   return {
@@ -30,8 +30,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { ueEnabled, author, fontKit } = getAemConfig();
-  const ueActive = ueEnabled && Boolean(author);
+  const { author, fontKit } = getAemConfig();
+  const ueActive = Boolean(author);
 
   return (
     <html lang="en">
@@ -39,15 +39,15 @@ export default function RootLayout({
         {fontKit ? (
           <link rel="stylesheet" href={`https://use.typekit.net/${fontKit}.css`} />
         ) : null}
+        {/* Universal Editor CORS helper, in <head> like the NYL app so the
+            editor handshake completes. Inert outside the UE iframe. */}
+        {ueActive ? (
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script src="https://universal-editor-service.adobe.io/cors.js" async />
+        ) : null}
       </head>
       <body>
         {children}
-        {ueActive ? (
-          <Script
-            src="https://universal-editor-service.adobe.io/cors.js"
-            strategy="afterInteractive"
-          />
-        ) : null}
       </body>
     </html>
   );

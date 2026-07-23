@@ -1,13 +1,11 @@
 import { money } from '@/lib/banking';
-import type { DisclosureCF } from '@/lib/cf-delivery';
-import DisclosureNote from './DisclosureNote';
 
 const QUICK = ['Pay & Transfer', 'Deposit', 'Statements', 'Manage cards'];
 
 // The "Good Morning" member dashboard: greeting band, e-docs enroll notice,
-// "Your Products" cards, quick tiles, and the disclosure Content Fragments
-// (citizens/en/disclosures) surfaced inline.
-export default function Dashboard({ disclosures }: { disclosures: readonly DisclosureCF[] }) {
+// "Your Products" cards, and quick tiles. Disclosures live in a band above the
+// footer (see components/Disclosures.tsx), per financial-site convention.
+export default function Dashboard() {
   return (
     <section className="dashboard">
       <div className="greeting">
@@ -67,14 +65,6 @@ export default function Dashboard({ disclosures }: { disclosures: readonly Discl
             </a>
           ))}
         </div>
-
-        {disclosures.length ? (
-          <div className="disc-strip">
-            {disclosures.map((d) => (
-              <DisclosureNote key={d.slug} title={d.title} bodyHtml={d.bodyHtml} />
-            ))}
-          </div>
-        ) : null}
       </div>
     </section>
   );

@@ -1589,3 +1589,18 @@ a {
 .ccard-sum { font-size: 14px; color: var(--brand-muted); line-height: 1.5; margin: 0 0 14px; }
 .ccard-cta { margin-top: auto; align-self: flex-start; color: var(--brand-cta); font-weight: 700; font-size: 14px; text-decoration: none; }
 .ccard-cta::after { content: " \203A"; }
+
+/* Disclosures band (above footer) */
+.disclosures-band { border-top: 1px solid var(--brand-border); background: #fff; }
+.disclosures-inner { max-width: 1200px; margin: 0 auto; padding: 26px 24px 30px; }
+.disclosures-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-muted);
+  margin: 0 0 8px;
+}
+.disclosures-list { display: flex; flex-direction: column; gap: 2px; }
+.disclosures-band .disc-note { margin: 0; }
+.disclosures-band .disc-body { max-width: 80ch; }

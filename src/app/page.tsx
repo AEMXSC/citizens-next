@@ -6,6 +6,7 @@ import OfferHero from '@/components/OfferHero';
 import Dashboard from '@/components/Dashboard';
 import CardsSection from '@/components/CardsSection';
 import InsightsGrid from '@/components/InsightsGrid';
+import Disclosures from '@/components/Disclosures';
 import SiteFooter from '@/components/SiteFooter';
 
 // Citizens online-banking dashboard, mirroring the NYL headless app. Every
@@ -39,12 +40,13 @@ export default async function Home() {
     <>
       <Masthead />
       <OfferHero offers={offers} />
-      <Dashboard disclosures={disclosures} />
+      <Dashboard />
       <CardsSection cards={cards} />
       <main className="wrap">
         <h2 className="wrap-title">Insights &amp; guidance</h2>
         <InsightsGrid articles={articles} />
       </main>
+      <Disclosures disclosures={disclosures} />
       <SiteFooter />
     </>
   );
