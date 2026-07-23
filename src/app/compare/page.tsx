@@ -17,7 +17,7 @@ const COMPARE_ROWS: [string, string, string][] = [
   ['Authoring persona', 'Marketer — CF Editor, Universal Editor, in-context', 'Developer — defines JSON schema; marketer fills a form'],
   ['Governance', 'Versioning, approval workflow, audit', 'None today (early version)'],
   ['Delivery', 'GraphQL persisted queries', 'JSON worker + query-index'],
-  ['Web + headless', 'Marketing site AND every channel from one fragment', 'Headless / JSON only'],
+  ['Web + headless', 'AEM Sites, EDS/DA, and every headless channel — one source', 'EDS/DA pages (via a block) and headless JSON'],
   ['Localization', 'MSM + translation framework', 'No MSM equivalent'],
   ['AI / campaign ops', 'GenStudio, Journey Optimizer', 'Not integrated'],
   ['Maturity', 'Enterprise-proven', 'Early'],
