@@ -51,6 +51,7 @@ function first(fragment: Fragment, name: string): string {
 
 export interface CardCF {
   readonly slug: string;
+  readonly path: string;
   readonly name: string;
   readonly summary: string;
   readonly benefitsHtml: string;
@@ -65,6 +66,7 @@ export async function getCards(config: AemConfig): Promise<CardCF[]> {
     const image = ref.startsWith('/') ? `${config.publish}${ref}` : ref;
     return {
       slug: fr.slug,
+      path: fr.path,
       name: first(fr, 'creditCardName'),
       summary: first(fr, 'shortSummary'),
       benefitsHtml: first(fr, 'benefitsSummaryRich'),
@@ -75,6 +77,7 @@ export async function getCards(config: AemConfig): Promise<CardCF[]> {
 
 export interface DisclosureCF {
   readonly slug: string;
+  readonly path: string;
   readonly title: string;
   readonly bodyHtml: string;
 }
@@ -84,7 +87,13 @@ export async function getDisclosureCFs(config: AemConfig): Promise<DisclosureCF[
   const frs = await listFragments(config, '/content/dam/citizens/en/disclosures');
   return frs.map((fr) => ({
     slug: fr.slug,
+    path: fr.path,
     title: first(fr, 'termsReference'),
     bodyHtml: first(fr, 'termDetails'),
   }));
+}
+
+/** Build the Universal Editor resource URN for a Content Fragment path. */
+export function aueResource(path: string): string {
+  return `urn:aemconnection:${path}/jcr:content/data/master`;
 }
