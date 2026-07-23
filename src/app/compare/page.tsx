@@ -14,7 +14,7 @@ const SC_SLUGS = ['citizens-checking', 'citizens-savings'];
 
 // Pros/cons rows: [dimension, AEM CF, DA Structured Content]
 const COMPARE_ROWS: [string, string, string][] = [
-  ['Authoring persona', 'Marketer — Universal Editor, in-context', 'Developer — defines JSON schema; marketer fills a form'],
+  ['Authoring persona', 'Marketer — CF Editor, Universal Editor, in-context', 'Developer — defines JSON schema; marketer fills a form'],
   ['Governance', 'Versioning, approval workflow, audit', 'None today (early version)'],
   ['Delivery', 'GraphQL persisted queries', 'JSON worker + query-index'],
   ['Web + headless', 'Marketing site AND every channel from one fragment', 'Headless / JSON only'],

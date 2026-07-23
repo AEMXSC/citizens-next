@@ -1665,22 +1665,20 @@ a {
 .cmp-col-head h2 { font-family: var(--font-serif); font-size: 20px; color: var(--brand-primary-dark); margin: 0 0 4px; }
 .cmp-col-head p { font-size: 13px; color: var(--brand-muted); margin: 0; }
 
-/* Persona badges */
+/* Persona labels (flat, editorial — no pastel pills) */
 .cmp-persona {
   display: inline-block;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 3px 10px;
-  border-radius: 999px;
-  margin: 0 6px 8px 0;
+  letter-spacing: 0.09em;
+  margin: 0 0 8px;
 }
-.cmp-persona-mkt { background: #e6f4ee; color: #00623f; }
-.cmp-persona-dev { background: #e7f0fb; color: #044da2; }
+.cmp-persona-mkt { color: var(--brand-primary); }
+.cmp-persona-dev { color: var(--brand-secondary); }
 
-/* Compact offer cards */
-.cmp-card { background: #fff; border: 1px solid var(--brand-border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 1px 6px rgb(0 0 0 / 5%); }
+/* Compact offer cards (flat, bordered — Citizens style) */
+.cmp-card { background: #fff; border: 1px solid var(--brand-border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
 .cmp-card:last-child { margin-bottom: 0; }
 .cmp-media { height: 92px; overflow: hidden; background: var(--brand-surface); }
 .cmp-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1710,15 +1708,12 @@ a {
 
 /* When to pick which */
 .cmp-pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.cmp-pick-card { border: 1px solid var(--brand-border); border-radius: 12px; padding: 20px; background: #fff; }
-.cmp-pick-card h3 { font-size: 16px; margin: 0 0 8px; }
+.cmp-pick-card { border: 1px solid var(--brand-border); border-radius: 10px; padding: 22px; background: #fff; }
+.cmp-pick-card h3 { font-family: var(--font-serif); font-size: 17px; line-height: 1.2; margin: 0 0 10px; }
 .cmp-pick-card p { font-size: 14px; color: var(--brand-muted); line-height: 1.55; margin: 0; }
-.cmp-pick-aem { background: #f0f8f4; border-color: #cfe8dd; }
-.cmp-pick-aem h3 { color: #00623f; }
-.cmp-pick-sc { background: #f1f6fc; border-color: #d4e4f6; }
-.cmp-pick-sc h3 { color: #044da2; }
-.cmp-pick-both { background: var(--brand-surface); }
-.cmp-pick-both h3 { color: var(--brand-primary-dark); }
+.cmp-pick-aem h3 { color: var(--brand-primary-dark); }
+.cmp-pick-sc h3 { color: var(--brand-secondary); }
+.cmp-pick-both h3 { color: var(--brand-cta); }
 
 .cmp-note { margin-top: 32px; font-size: 12px; color: var(--brand-muted); }
 .cmp-note code { background: var(--brand-surface); border-radius: 4px; padding: 1px 6px; }
