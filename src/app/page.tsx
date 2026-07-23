@@ -8,6 +8,7 @@ import CardsSection from '@/components/CardsSection';
 import InsightsGrid from '@/components/InsightsGrid';
 import Disclosures from '@/components/Disclosures';
 import SiteFooter from '@/components/SiteFooter';
+import LiveRefresh from '@/components/LiveRefresh';
 
 // Citizens online-banking dashboard, mirroring the NYL headless app. Every
 // content surface is a live Citizens Content Fragment read server-side:
@@ -17,6 +18,8 @@ import SiteFooter from '@/components/SiteFooter';
 //   disclosures -> CF Delivery API        (citizens/en/disclosures)
 // The account figures are the app shell.
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
@@ -38,6 +41,7 @@ export default async function Home() {
 
   return (
     <>
+      <LiveRefresh />
       <Masthead />
       <OfferHero offers={offers} />
       <Dashboard />

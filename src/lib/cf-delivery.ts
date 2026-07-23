@@ -32,7 +32,9 @@ function flatten(item: DeliveryItem): Fragment {
 /** List the content fragments directly under a DAM folder. */
 export async function listFragments(config: AemConfig, folder: string): Promise<Fragment[]> {
   if (!config.publish) throw new Error('[cf-delivery] AEM publish origin not configured');
-  const url = `${config.publish}/adobe/sites/cf/fragments?path=${folder}`;
+  // ?ts= busts the AEM CDN cache so a freshly published fragment shows on the
+  // next read (same technique the persisted-query client uses).
+  const url = `${config.publish}/adobe/sites/cf/fragments?path=${folder}&ts=${Date.now()}`;
   const headers: Record<string, string> = { accept: 'application/json' };
   if (config.token) headers.authorization = `Bearer ${config.token}`;
 
