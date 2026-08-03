@@ -171,8 +171,26 @@ export default async function ComparePage() {
             <p>Developer-owned reference data, high-velocity simple content, and cost-sensitive greenfield MVPs where speed beats governance.</p>
           </div>
           <div className="cmp-pick-card cmp-pick-both">
-            <h3>Best for this PRD</h3>
-            <p>Split by content class — regulated on AEM CF, high-velocity marketing on DA SC — both feeding the same JSON delivery contract.</p>
+            <h3>Best for Citizens PRD/Requirments</h3>
+            <p>
+              <strong>One governed spine: Content Fragments, authored in Universal Editor, on the DAM Citizens
+              already owns</strong> — delivering a single GraphQL/JSON contract to any frontend (this Next.js app,
+              the EDS crosswalk), to mobile, and to email through Journey Optimizer.
+            </p>
+            <p>
+              Frontend framework isn&rsquo;t the axis. AEM is delivery-agnostic — Next.js, React, EDS, native
+              mobile, whatever the PRD names, the answer is &ldquo;no problem.&rdquo; The axis that actually
+              matters is <strong>who authors it and which ecosystem it belongs to</strong>. DA Structured Content
+              returns a flat, web-page-shaped JSON blob; it is not a Journey Optimizer or GenStudio content source.
+              CF is a first-class citizen of that ecosystem today.
+            </p>
+            <p>
+              The split&rsquo;s only honest advantage is web-authoring velocity — and that advantage dies the
+              moment the PRD asks for mobile and email/AJO, since DA SC has no path into either. Operationally,
+              a regulated bank shouldn&rsquo;t run two authoring homes for one brand&rsquo;s content: two logins,
+              two governance models, two audit trails, and a reconciliation problem Legal and Compliance never
+              signed up for.
+            </p>
           </div>
         </div>
       </section>
