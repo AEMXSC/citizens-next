@@ -1,19 +1,17 @@
-import { getAemConfig } from '@/lib/aem-config';
-import { getArticles, getOffers, type Article, type Offer } from '@/lib/aem-client';
-import { getCards, getDisclosureCFs, type Card, type DisclosureCF } from '@/lib/cf-delivery';
-import { getEdsCards, getEdsInsights } from '@/lib/eds-content';
+import CardsSection from '@/components/CardsSection';
+import Dashboard from '@/components/Dashboard';
+import Disclosures from '@/components/Disclosures';
+import InsightsGrid from '@/components/InsightsGrid';
+import LiveRefresh from '@/components/LiveRefresh';
 import Masthead from '@/components/Masthead';
 import OfferHero from '@/components/OfferHero';
-import Dashboard from '@/components/Dashboard';
-import CardsSection from '@/components/CardsSection';
-import InsightsGrid from '@/components/InsightsGrid';
-import Disclosures from '@/components/Disclosures';
 import SiteFooter from '@/components/SiteFooter';
-import LiveRefresh from '@/components/LiveRefresh';
+import { getArticles, getOffers, type Article, type Offer } from '@/lib/aem-client';
+import { getAemConfig } from '@/lib/aem-config';
+import { getCards, getDisclosureCFs, type Card, type DisclosureCF } from '@/lib/cf-delivery';
+import { getEdsCards, getEdsInsights } from '@/lib/eds-content';
+import { getBanners, type Banner } from '@/lib/eds-graphql';
 
-// Citizens online-banking dashboard. Offers and disclosures stay on AEM;
-// cards and articles each request their own EDS path when opted in.
-// The account figures are the app shell.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
@@ -32,7 +30,7 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 export default async function Home() {
   const config = getAemConfig();
-  const [cards, articles, offers, disclosures] = await Promise.all([
+  const [cards, articles, offers, banners, disclosures] = await Promise.all([
     safe<readonly Card[]>(
       'getCards',
       () => config.edsContentEnabled ? getEdsCards(config, CARD_PREFIX) : getCards(config),
@@ -43,7 +41,12 @@ export default async function Home() {
       () => config.edsContentEnabled ? getEdsInsights(config, INSIGHT_PREFIX) : getArticles(config),
       [],
     ),
-    safe<readonly Offer[]>('getOffers', () => getOffers(config), []),
+    config.edsContentEnabled
+      ? Promise.resolve([] as readonly Offer[])
+      : safe<readonly Offer[]>('getOffers', () => getOffers(config), []),
+    config.edsContentEnabled
+      ? getBanners(config)
+      : Promise.resolve([] as readonly Banner[]),
     safe<readonly DisclosureCF[]>('getDisclosureCFs', () => getDisclosureCFs(config), []),
   ]);
 
@@ -51,7 +54,9 @@ export default async function Home() {
     <>
       <LiveRefresh />
       <Masthead />
-      <OfferHero offers={offers} />
+      {config.edsContentEnabled
+        ? <OfferHero banners={banners} />
+        : <OfferHero offers={offers} />}
       <Dashboard />
       <CardsSection cards={cards} editable={!config.edsContentEnabled} />
       <main className="wrap">

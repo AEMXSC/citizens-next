@@ -4,9 +4,9 @@
 // counterpart to the AEM Content Fragment path in aem-client.ts — same content
 // model, different authoring + delivery stack.
 
-import { getAemConfig } from './aem-config';
+import type { AemConfig } from './aem-config';
+import { workerOrigin } from './da-worker';
 
-export const DA_SC_BASE = 'https://da-sc.adobeaem.workers.dev';
 const ORG = 'aemxsc';
 const SITE = 'citizens';
 
@@ -28,16 +28,17 @@ interface DeliveryDoc {
   data?: Record<string, string>;
 }
 
-function resolveImage(ref: string): string {
+function resolveImage(ref: string, publish: string): string {
   if (!ref) return '';
-  return ref.startsWith('/') ? `${getAemConfig().publish}${ref}` : ref;
+  return ref.startsWith('/') ? `${publish}${ref}` : ref;
 }
 
 // Try live (published) first, then preview, so the page works as soon as the
 // doc is previewed and upgrades to the published copy once it is live.
-async function fetchOffer(slug: string): Promise<StructuredOffer | null> {
+async function fetchOffer(slug: string, base: URL, publish: string): Promise<StructuredOffer | null> {
   for (const env of ['live', 'preview']) {
-    const url = `${DA_SC_BASE}/${env}/${ORG}/${SITE}/sc/${slug}?ts=${Date.now()}`;
+    const url = new URL(`/${env}/${ORG}/${SITE}/sc/${slug}`, base);
+    url.searchParams.set('ts', String(Date.now()));
     try {
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) continue;
@@ -51,7 +52,7 @@ async function fetchOffer(slug: string): Promise<StructuredOffer | null> {
         detail: d.detail ?? '',
         callToAction: d.callToAction ?? '',
         ctaUrl: d.ctaUrl ?? '',
-        heroImage: resolveImage(d.heroImage ?? ''),
+        heroImage: resolveImage(d.heroImage ?? '', publish),
       };
     } catch {
       // try next env
@@ -60,8 +61,9 @@ async function fetchOffer(slug: string): Promise<StructuredOffer | null> {
   return null;
 }
 
-export async function getStructuredOffers(): Promise<StructuredOffer[]> {
-  const results = await Promise.all(SC_OFFER_SLUGS.map((s) => fetchOffer(s)));
+export async function getStructuredOffers(config: AemConfig): Promise<StructuredOffer[]> {
+  const base = workerOrigin(config);
+  const results = await Promise.all(SC_OFFER_SLUGS.map((s) => fetchOffer(s, base, config.publish)));
   const out: StructuredOffer[] = [];
   for (const o of results) {
     if (o) out.push(o);

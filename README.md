@@ -1,13 +1,13 @@
 # citizens-next
 
-Citizens Bank instance of the [`aem-ue-headless-next`](https://github.com/AEMXSC/aem-ue-headless-next) starter — a **Next.js App Router** app that:
+Citizens Bank instance of the [`aem-ue-headless-next`](https://github.com/AEMXSC/aem-ue-headless-next) starter. This **Next.js App Router** app supports both delivery paths.
 
-- consumes **AEM Content Fragments** over GraphQL persisted queries, and
-- is **live-editable in Universal Editor** (the same fragment edited once updates this app and any other surface reading the same CFs).
+- reads AEM Content Fragments by default, with optional EDS delivery for the homepage banner, cards, and insights.
+- supports Universal Editor for AEM-backed content.
 
 It also includes `src/lib/da-sc.ts`, a second content path reading **DA Structured Content** for the `/compare` page — a side-by-side of the two Adobe-native authoring/delivery models on the identical `Offer` content shape. See that page's "When to pick which" section for the recommendation and reasoning.
 
-It is the app-surface half of the cross-surface story: pair it with an AEM EDS/DA website reading the same fragments, and one edit updates both.
+It is the app surface of a cross-surface demo. The AEM and EDS delivery paths are separate.
 
 ## Quick start (local dev)
 
@@ -47,29 +47,35 @@ A personal token (`vercel.com/account/tokens`) is the easiest non-interactive pa
 
 ## Configuration
 
-All configuration lives in `.env.local`. `src/lib/aem-config.ts` is the only module that reads it.
+Configure server-side values in the ignored `.env.local` or your deployment environment. `src/lib/aem-config.ts` reads them.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `AEM_PUBLISH` | yes | Publish origin for public reads |
-| `AEM_CF_PREFIX` | yes | Persisted-query namespace (segment after `/graphql/execute.json/`) |
+| `AEM_PUBLISH` | for a different AEM instance | Publish origin for public reads. The demo instance is the default. |
+| `AEM_CF_PREFIX` | for a different AEM instance | Persisted-query namespace (segment after `/graphql/execute.json/`). The demo prefix is the default. |
 | `AEM_AUTHOR` | for UE | Author origin, used for the Universal Editor connection |
 | `AEM_TOKEN` | if gated | Bearer token for non-public persisted queries |
 | `UE_ENABLED` | no | `true` only when serving inside Universal Editor |
-| `EDS_CONTENT_ENABLED` | no | Set to `true` to read cards and insights from the EDS list API. Defaults to `false`. |
-| `EDS_WORKER_BASE` | no | Worker origin for EDS list reads. Defaults to `https://da-sc.adobeaem.workers.dev`. Use `http://127.0.0.1:8787` for a local worker. |
+| `EDS_CONTENT_ENABLED` | no | Switch homepage banner, cards, and insights to EDS when `true`. Defaults to `false`. |
+| `EDS_WORKER_BASE` | for EDS lists and `/compare` | Structured-content worker origin. Use `http://127.0.0.1:8787` for a local worker. |
+| `EDS_GRAPHQL_ENDPOINT` | for EDS mode | Complete external HTTPS banner GraphQL URL, configured outside source control. |
+| `EDS_GRAPHQL_TOKEN` | if gated | Optional server-side bearer token. Do not expose it with a `NEXT_PUBLIC_` prefix. |
 | `NEXT_PUBLIC_FONT_KIT` | no | Adobe Fonts kit id for the brand font |
 | `NEXT_PUBLIC_BRAND_NAME` | no | Masthead label |
 
-`src/lib/da-sc.ts` (the DA Structured Content path used by `/compare`) is **not** env-configured — the org/site (`aemxsc`/`citizens`) are hardcoded constants at the top of the file. Edit them directly if reusing this repo for another tenant.
+The `/compare` DA offer feed uses `EDS_WORKER_BASE`. Its org/site identifiers (`aemxsc`/`citizens`) remain in `src/lib/da-sc.ts`. Without a configured worker origin, the DA comparison column stays empty and reports the configuration error in server logs.
 
 ## EDS content opt-in
 
-By default, cards use AEM's Content Fragment Delivery API and insights use the AEM `ArticleList` persisted query. With `EDS_CONTENT_ENABLED=true`, each section supplies its prefix to a separate EDS list request. Cards use `GET https://da-sc.adobeaem.workers.dev/live/exp-workspace/frescopa?path=/forms/citizens/cards/&limit=50` and insights use the same endpoint with `path=/forms/citizens/insights/`. Each loader returns only its own collection, so a failure in one does not hide the other. A worker version supporting the `path` filter must be deployed before enabling this option against the public worker. The delivery worker filters indexed paths by prefix before returning documents. The app follows the opaque `cursor` on each non-final page, checks that returned documents belong to the requested path, and sorts each collection by `displayOrder`. Offers and disclosures continue to use AEM. The separate `/compare` page still reads DA offers from `aemxsc/citizens`.
+| Homepage section | Default | EDS mode |
+|---|---|---|
+| Rotating banner | AEM `OfferByPath` | One server-side `citizensDemoBanners` GraphQL request |
+| Credit cards | AEM Content Fragment Delivery API | EDS list API under `/forms/citizens/cards/` |
+| Insights | AEM `ArticleList` | EDS list API under `/forms/citizens/insights/` |
 
-Each card document needs string fields `creditCardName`, `shortSummary`, `benefitsSummaryRich`, `creditCardImage`, and `imageAlt`. Each insight needs string fields `headline`, `main`, `heroImage`, and `imageAlt`. Both types need a numeric `displayOrder`, which controls their order on the homepage even when the index returns a different order. Use HTTPS image URLs, `/content/dam/...` paths, or root-relative EDS media paths. The source page and image assets must be published before enabling the switch. Missing fields or failed indexed documents are reported as errors rather than silently substituted with AEM content. EDS cards and insights do not receive AEM Universal Editor bindings.
+Set `EDS_CONTENT_ENABLED=true` and provide the full external HTTPS `EDS_GRAPHQL_ENDPOINT` to enable EDS mode. Keep the URL in `.env.local` or deployment configuration, not source control. Set `EDS_GRAPHQL_TOKEN` only if required by the service. The EDS list worker must support path filtering. For local worker testing, set `EDS_WORKER_BASE=http://127.0.0.1:8787` and start the app with `npm run dev`. If the GraphQL endpoint is missing, EDS mode fails clearly instead of showing mock data.
 
-To test before the worker route is deployed publicly, run `npm run dev -- --port 8787` in the `da-sc` checkout (install dependencies with `npm ci` only if missing). Keep the worker running, then run `EDS_CONTENT_ENABLED=true EDS_WORKER_BASE=http://127.0.0.1:8787 npm run dev` in this checkout. Visit `http://localhost:3000` and look for four fictional cards, three fictional insights, and their images. The worker should return four entries at `http://127.0.0.1:8787/live/exp-workspace/frescopa?path=/forms/citizens/cards/&limit=50` and three with `path=/forms/citizens/insights/`. For a cursor response, request either path with `limit=2`, then pass its `cursor` back unchanged along with the same `path` as the next request's `cursor` parameter. Remove `EDS_WORKER_BASE` after the public worker is deployed. This setting affects cards and insights only.
+EDS documents must be published before their live image URLs resolve. The app validates required fields and sorts each collection by `displayOrder`. Disclosures still use AEM, and `/compare` keeps its AEM and DA offer feeds. EDS content does not receive AEM Universal Editor bindings.
 
 ## Structure
 
@@ -77,23 +83,26 @@ To test before the worker route is deployed publicly, run `npm run dev -- --port
 src/
   app/
     layout.tsx                  UE connection meta + cors.js (when UE_ENABLED)
-    page.tsx                    SSR home: OfferCarousel + ArticleGrid
-    api/graphql/[...q]/route.ts server proxy to AEM (CORS + auth)
+    page.tsx                    Homepage data selection and rendering
+    api/graphql/[...q]/route.ts Server proxy for AEM persisted queries
   lib/
-    aem-config.ts               THE one env reader
-    aem-client.ts               persisted-query reads + CF types
-    queries.ts                  persisted-query names
-    ue.ts                       data-aue-* instrumentation helpers
-  components/                   ArticleCard, ArticleGrid, OfferCarousel, CFImage
-  styles/tokens.css             brand tokens (the one skin file)
+    aem-config.ts               Server-side configuration
+    aem-client.ts               AEM persisted-query reads and types
+    cf-delivery.ts              AEM Content Fragment Delivery API
+    da-worker.ts                Configured structured-content worker origin
+    eds-content.ts              EDS list API for cards and insights
+    eds-graphql.ts              EDS GraphQL banner query
+    da-sc.ts                    DA offer feed for /compare
+  components/                   OfferHero, CardsSection, InsightsGrid
+  styles/tokens.css             Brand tokens
 ```
 
 ## How editing works
 
-When `UE_ENABLED=true`, `layout.tsx` injects `<meta name="urn:adobe:aue:system:aemconnection" content="aem:<AEM_AUTHOR>">` and the Universal Editor `cors.js`. Components carry `data-aue-*` attributes (built by `src/lib/ue.ts`) that bind each element to a Content Fragment field. Universal Editor reads those attributes to make the app editable and writes changes back to the AEM author. On the public deploy (`UE_ENABLED=false`) the attributes are omitted and the DOM stays clean.
+When `UE_ENABLED=true`, `layout.tsx` adds the AEM connection and Universal Editor script. AEM-backed components have `data-aue-*` bindings to Content Fragment fields. EDS-backed banner, card, and insight content is authored separately and has no AEM bindings.
 
 ## Notes
 
-- Content Fragment images use a plain responsive `<picture>` (`CFImage.tsx`) rather than `next/image`, because Dynamic Media / Scene7 URLs carry query parameters `next/image` would strip.
-- The offer carousel fetches `OfferByPath` queries, one per configured offer path.
-- No customer data is hardcoded; all content comes from Content Fragments.
+- Images use plain `<img>` elements so AEM Dynamic Media URLs retain their query parameters.
+- The default offer carousel fetches one AEM `OfferByPath` result per configured path. EDS mode fetches the banner list in one GraphQL request.
+- The dashboard uses a placeholder profile and account figures rather than data from a customer API.

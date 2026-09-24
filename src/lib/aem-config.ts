@@ -21,8 +21,12 @@ export interface AemConfig {
   readonly ueEnabled: boolean;
   /** Read cards and insights from the EDS structured-content list instead of AEM. */
   readonly edsContentEnabled: boolean;
-  /** Optional local worker origin for EDS list reads. */
+  /** Structured-content worker origin for EDS lists and the comparison feed. */
   readonly edsWorkerBase: string | null;
+  /** External EDS GraphQL endpoint for the homepage banner, when configured. */
+  readonly edsGraphqlEndpoint: string | null;
+  /** Optional server-side bearer token for EDS GraphQL. */
+  readonly edsGraphqlToken: string | null;
   /** Optional Adobe Fonts (Typekit) kit id for the brand font; null when unset. */
   readonly fontKit: string | null;
   /** Brand name shown in the masthead. Defaults to a neutral label. */
@@ -54,6 +58,8 @@ export function getAemConfig(): AemConfig {
   const ueEnabled = (process.env.UE_ENABLED ?? 'false').trim().toLowerCase() === 'true';
   const edsContentEnabled = (process.env.EDS_CONTENT_ENABLED ?? 'false').trim().toLowerCase() === 'true';
   const edsWorkerBase = stripTrailingSlash(process.env.EDS_WORKER_BASE?.trim() ?? '') || null;
+  const edsGraphqlEndpoint = process.env.EDS_GRAPHQL_ENDPOINT?.trim() || null;
+  const edsGraphqlToken = process.env.EDS_GRAPHQL_TOKEN?.trim() || null;
   const fontKit = process.env.NEXT_PUBLIC_FONT_KIT?.trim() || null;
   const brandName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || 'Citizens';
 
@@ -68,5 +74,8 @@ export function getAemConfig(): AemConfig {
     warned = true;
   }
 
-  return Object.freeze({ author, publish, cfPrefix, token, ueEnabled, edsContentEnabled, edsWorkerBase, fontKit, brandName });
+  return Object.freeze({
+    author, publish, cfPrefix, token, ueEnabled, edsContentEnabled,
+    edsWorkerBase, edsGraphqlEndpoint, edsGraphqlToken, fontKit, brandName,
+  });
 }

@@ -1378,6 +1378,7 @@ a {
 .oh-pre,
 .oh-head,
 .oh-det,
+.oh-demo,
 .oh-dots { position: relative; z-index: 2; }
 
 .oh-nav { z-index: 2; }
@@ -1411,6 +1412,8 @@ a {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.oh-demo { font-size: 11px; line-height: 1.35; opacity: 0.9; margin: 8px 0 0; }
 .oh-dots { display: flex; gap: 8px; margin-top: 16px; }
 .oh-dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(255 255 255 / 45%); }
 .oh-dot.on { background: #fff; }

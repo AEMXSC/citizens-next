@@ -1,7 +1,7 @@
 import type { AemConfig } from './aem-config';
 import type { Article } from './aem-client';
 import type { Card } from './cf-delivery';
-import { DA_SC_BASE } from './da-sc';
+import { workerOrigin } from './da-worker';
 
 const EDS_ORG = 'exp-workspace';
 const EDS_SITE = 'frescopa';
@@ -38,18 +38,7 @@ function readPage(value: unknown): ListPage {
 }
 
 function listEndpoint(config: AemConfig): URL {
-  let base: URL;
-  try {
-    base = new URL(config.edsWorkerBase ?? DA_SC_BASE);
-  } catch {
-    throw new Error('[eds-content] EDS_WORKER_BASE must be a valid origin');
-  }
-  const isLocal = base.hostname === 'localhost' || base.hostname === '127.0.0.1';
-  if ((base.protocol !== 'https:' && !(base.protocol === 'http:' && isLocal))
-    || base.pathname !== '/' || base.search || base.hash || base.username || base.password) {
-    throw new Error('[eds-content] EDS_WORKER_BASE must be an HTTPS origin or a local HTTP origin');
-  }
-  return new URL(`/live/${EDS_ORG}/${EDS_SITE}`, base);
+  return new URL(`/live/${EDS_ORG}/${EDS_SITE}`, workerOrigin(config));
 }
 
 function readString(data: Record<string, unknown>, field: string, path: string): string {

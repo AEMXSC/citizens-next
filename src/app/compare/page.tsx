@@ -50,14 +50,19 @@ function fromScOffer(o: StructuredOffer): CompareCardData {
 }
 
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
-  try { return await fn(); } catch { return fallback; }
+  try {
+    return await fn();
+  } catch (error) {
+    console.error('[compare] Content read failed', error);
+    return fallback;
+  }
 }
 
 export default async function ComparePage() {
   const config = getAemConfig();
   const [aemAll, scAll] = await Promise.all([
     safe<readonly Offer[]>(() => getOffers(config), []),
-    safe<StructuredOffer[]>(() => getStructuredOffers(), []),
+    safe<StructuredOffer[]>(() => getStructuredOffers(config), []),
   ]);
 
   // Pair by slug so both columns show the same offers in the same order.
@@ -186,7 +191,7 @@ export default async function ComparePage() {
 
       <p className="cmp-note">
         Publish source: AEM publish <code>{config.publish.replace('https://', '')}</code> ·
-        DA worker <code>da-sc.adobeaem.workers.dev/live/aemxsc/citizens/sc/*</code>
+        DA worker <code>configured through EDS_WORKER_BASE</code>
       </p>
     </main>
   );
