@@ -1,6 +1,7 @@
 import { getAemConfig } from '@/lib/aem-config';
 import { getArticles, getOffers, type Article, type Offer } from '@/lib/aem-client';
-import { getCards, getDisclosureCFs, type CardCF, type DisclosureCF } from '@/lib/cf-delivery';
+import { getCards, getDisclosureCFs, type Card, type DisclosureCF } from '@/lib/cf-delivery';
+import { getEdsContent } from '@/lib/eds-content';
 import Masthead from '@/components/Masthead';
 import OfferHero from '@/components/OfferHero';
 import Dashboard from '@/components/Dashboard';
@@ -10,12 +11,8 @@ import Disclosures from '@/components/Disclosures';
 import SiteFooter from '@/components/SiteFooter';
 import LiveRefresh from '@/components/LiveRefresh';
 
-// Citizens online-banking dashboard, mirroring the NYL headless app. Every
-// content surface is a live Citizens Content Fragment read server-side:
-//   offers      -> securbank/OfferByPath  (citizens/en/offers)
-//   articles    -> securbank/ArticleList  (citizens/en/articles)
-//   cards       -> CF Delivery API        (citizens/en/cards)
-//   disclosures -> CF Delivery API        (citizens/en/disclosures)
+// Citizens online-banking dashboard. Offers and disclosures stay on AEM;
+// cards and articles switch together to the EDS list when opted in.
 // The account figures are the app shell.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -32,10 +29,15 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 export default async function Home() {
   const config = getAemConfig();
-  const [articles, offers, cards, disclosures] = await Promise.all([
-    safe<readonly Article[]>('getArticles', () => getArticles(config), []),
+  const content = config.edsContentEnabled
+    ? safe('getEdsContent', () => getEdsContent(config), { cards: [], articles: [] })
+    : Promise.all([
+      safe<readonly Card[]>('getCards', () => getCards(config), []),
+      safe<readonly Article[]>('getArticles', () => getArticles(config), []),
+    ]).then(([cards, articles]) => ({ cards, articles }));
+  const [{ articles, cards }, offers, disclosures] = await Promise.all([
+    content,
     safe<readonly Offer[]>('getOffers', () => getOffers(config), []),
-    safe<readonly CardCF[]>('getCards', () => getCards(config), []),
     safe<readonly DisclosureCF[]>('getDisclosureCFs', () => getDisclosureCFs(config), []),
   ]);
 
@@ -45,10 +47,11 @@ export default async function Home() {
       <Masthead />
       <OfferHero offers={offers} />
       <Dashboard />
-      <CardsSection cards={cards} />
+      <CardsSection cards={cards} editable={!config.edsContentEnabled} />
       <main className="wrap">
         <h2 className="wrap-title">Insights &amp; guidance</h2>
-        <InsightsGrid articles={articles} />
+        {config.edsContentEnabled ? <p className="demo-note">Demo content. Fictional examples only.</p> : null}
+        <InsightsGrid articles={articles} editable={!config.edsContentEnabled} />
       </main>
       <Disclosures disclosures={disclosures} />
       <SiteFooter />

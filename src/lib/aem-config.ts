@@ -19,6 +19,10 @@ export interface AemConfig {
   readonly token: string | null;
   /** True only when serving inside Universal Editor. */
   readonly ueEnabled: boolean;
+  /** Read cards and insights from the EDS structured-content list instead of AEM. */
+  readonly edsContentEnabled: boolean;
+  /** Optional local worker origin for EDS list reads. */
+  readonly edsWorkerBase: string | null;
   /** Optional Adobe Fonts (Typekit) kit id for the brand font; null when unset. */
   readonly fontKit: string | null;
   /** Brand name shown in the masthead. Defaults to a neutral label. */
@@ -48,6 +52,8 @@ export function getAemConfig(): AemConfig {
   const cfPrefix = (process.env.AEM_CF_PREFIX ?? '').replace(/^\/+|\/+$/g, '') || DEMO_PREFIX;
   const token = process.env.AEM_TOKEN?.trim() || null;
   const ueEnabled = (process.env.UE_ENABLED ?? 'false').trim().toLowerCase() === 'true';
+  const edsContentEnabled = (process.env.EDS_CONTENT_ENABLED ?? 'false').trim().toLowerCase() === 'true';
+  const edsWorkerBase = stripTrailingSlash(process.env.EDS_WORKER_BASE?.trim() ?? '') || null;
   const fontKit = process.env.NEXT_PUBLIC_FONT_KIT?.trim() || null;
   const brandName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || 'Citizens';
 
@@ -62,5 +68,5 @@ export function getAemConfig(): AemConfig {
     warned = true;
   }
 
-  return Object.freeze({ author, publish, cfPrefix, token, ueEnabled, fontKit, brandName });
+  return Object.freeze({ author, publish, cfPrefix, token, ueEnabled, edsContentEnabled, edsWorkerBase, fontKit, brandName });
 }

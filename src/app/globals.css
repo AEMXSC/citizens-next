@@ -1590,6 +1590,7 @@ a {
 .insight-body p { margin: 0; font-size: 15px; color: var(--brand-muted); line-height: 1.55; }
 
 .insights-empty { color: var(--brand-muted); padding: 40px 0; }
+.demo-note { color: var(--brand-muted); font-size: 13px; }
 
 /* Footer */
 .site-footer { background: #003d29; color: #cfe6dc; }

@@ -51,17 +51,18 @@ function first(fragment: Fragment, name: string): string {
   return fragment.fields[name]?.[0] ?? '';
 }
 
-export interface CardCF {
+export interface Card {
   readonly slug: string;
   readonly path: string;
   readonly name: string;
   readonly summary: string;
   readonly benefitsHtml: string;
   readonly image: string;
+  readonly imageAlt?: string;
 }
 
 /** Credit-card Content Fragments (citizens/en/cards). */
-export async function getCards(config: AemConfig): Promise<CardCF[]> {
+export async function getCards(config: AemConfig): Promise<Card[]> {
   const frs = await listFragments(config, '/content/dam/citizens/en/cards');
   return frs.map((fr) => {
     const ref = first(fr, 'creditCardImage');

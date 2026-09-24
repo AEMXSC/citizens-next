@@ -6,7 +6,7 @@
 
 import { getAemConfig } from './aem-config';
 
-const DA_SC_BASE = 'https://da-sc.adobeaem.workers.dev';
+export const DA_SC_BASE = 'https://da-sc.adobeaem.workers.dev';
 const ORG = 'aemxsc';
 const SITE = 'citizens';
 

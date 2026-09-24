@@ -26,6 +26,7 @@ export interface Article {
   readonly headline?: string;
   readonly main?: { readonly plaintext?: string; readonly html?: string };
   readonly heroImage?: CFImageRef;
+  readonly heroImageAlt?: string;
 }
 
 export interface Offer {

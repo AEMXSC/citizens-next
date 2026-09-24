@@ -14,7 +14,7 @@ It is the app-surface half of the cross-surface story: pair it with an AEM EDS/D
 ```bash
 git clone https://github.com/AEMXSC/citizens-next.git
 cd citizens-next
-cp .env.example .env.local   # fill in the six values — see Configuration below
+cp .env.example .env.local   # configure the AEM values, then see Configuration below
 npm install
 npm run dev                  # http://localhost:3000
 ```
@@ -56,10 +56,20 @@ All configuration lives in `.env.local`. `src/lib/aem-config.ts` is the only mod
 | `AEM_AUTHOR` | for UE | Author origin, used for the Universal Editor connection |
 | `AEM_TOKEN` | if gated | Bearer token for non-public persisted queries |
 | `UE_ENABLED` | no | `true` only when serving inside Universal Editor |
+| `EDS_CONTENT_ENABLED` | no | Set to `true` to read cards and insights from the EDS list API. Defaults to `false`. |
+| `EDS_WORKER_BASE` | no | Worker origin for EDS list reads. Defaults to `https://da-sc.adobeaem.workers.dev`. Use `http://127.0.0.1:8787` for a local worker. |
 | `NEXT_PUBLIC_FONT_KIT` | no | Adobe Fonts kit id for the brand font |
 | `NEXT_PUBLIC_BRAND_NAME` | no | Masthead label |
 
 `src/lib/da-sc.ts` (the DA Structured Content path used by `/compare`) is **not** env-configured — the org/site (`aemxsc`/`citizens`) are hardcoded constants at the top of the file. Edit them directly if reusing this repo for another tenant.
+
+## EDS content opt-in
+
+By default, cards use AEM's Content Fragment Delivery API and insights use the AEM `ArticleList` persisted query. With `EDS_CONTENT_ENABLED=true`, the app fetches both collections from `GET https://da-sc.adobeaem.workers.dev/live/exp-workspace/frescopa?limit=50` and follows the opaque `cursor` returned on each non-final page. It selects indexed documents under `/forms/citizens/cards/<slug>` and `/forms/citizens/insights/<slug>` in the Frescopa EDS index. The list endpoint has no server-side path filter. Offers and disclosures continue to use AEM. The separate `/compare` page still reads DA offers from `aemxsc/citizens`.
+
+Each card document needs string fields `creditCardName`, `shortSummary`, `benefitsSummaryRich`, `creditCardImage`, and `imageAlt`. Each insight needs string fields `headline`, `main`, `heroImage`, and `imageAlt`. Both types need a numeric `displayOrder`, which controls their order on the homepage even when the index returns a different order. Use HTTPS image URLs, `/content/dam/...` paths, or root-relative EDS media paths. The source page and image assets must be published before enabling the switch. Missing fields or failed indexed documents are reported as errors rather than silently substituted with AEM content. EDS cards and insights do not receive AEM Universal Editor bindings.
+
+To test before the worker route is deployed publicly, run `npm run dev -- --port 8787` in the `da-sc` checkout (install dependencies with `npm ci` only if missing). Keep the worker running, then run `EDS_CONTENT_ENABLED=true EDS_WORKER_BASE=http://127.0.0.1:8787 npm run dev` in this checkout. Visit `http://localhost:3000` and look for four fictional cards, three fictional insights, and their images. The worker should return seven entries at `http://127.0.0.1:8787/live/exp-workspace/frescopa?limit=50`. For a cursor response, request the same endpoint with `limit=2`, then pass its `cursor` back unchanged as the next request's `cursor` parameter. Remove `EDS_WORKER_BASE` after the public worker is deployed. This setting affects cards and insights only.
 
 ## Structure
 
@@ -85,5 +95,5 @@ When `UE_ENABLED=true`, `layout.tsx` injects `<meta name="urn:adobe:aue:system:a
 ## Notes
 
 - Content Fragment images use a plain responsive `<picture>` (`CFImage.tsx`) rather than `next/image`, because Dynamic Media / Scene7 URLs carry query parameters `next/image` would strip.
-- The offer carousel fetches one `OfferList` query, not one request per offer.
+- The offer carousel fetches `OfferByPath` queries, one per configured offer path.
 - No customer data is hardcoded; all content comes from Content Fragments.
