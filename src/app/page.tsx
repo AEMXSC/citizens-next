@@ -1,7 +1,7 @@
 import { getAemConfig } from '@/lib/aem-config';
 import { getArticles, getOffers, type Article, type Offer } from '@/lib/aem-client';
 import { getCards, getDisclosureCFs, type Card, type DisclosureCF } from '@/lib/cf-delivery';
-import { getEdsContent } from '@/lib/eds-content';
+import { getEdsCards, getEdsInsights } from '@/lib/eds-content';
 import Masthead from '@/components/Masthead';
 import OfferHero from '@/components/OfferHero';
 import Dashboard from '@/components/Dashboard';
@@ -12,11 +12,14 @@ import SiteFooter from '@/components/SiteFooter';
 import LiveRefresh from '@/components/LiveRefresh';
 
 // Citizens online-banking dashboard. Offers and disclosures stay on AEM;
-// cards and articles switch together to the EDS list when opted in.
+// cards and articles each request their own EDS path when opted in.
 // The account figures are the app shell.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+
+const CARD_PREFIX = '/forms/citizens/cards/';
+const INSIGHT_PREFIX = '/forms/citizens/insights/';
 
 async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
@@ -29,14 +32,17 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 export default async function Home() {
   const config = getAemConfig();
-  const content = config.edsContentEnabled
-    ? safe('getEdsContent', () => getEdsContent(config), { cards: [], articles: [] })
-    : Promise.all([
-      safe<readonly Card[]>('getCards', () => getCards(config), []),
-      safe<readonly Article[]>('getArticles', () => getArticles(config), []),
-    ]).then(([cards, articles]) => ({ cards, articles }));
-  const [{ articles, cards }, offers, disclosures] = await Promise.all([
-    content,
+  const [cards, articles, offers, disclosures] = await Promise.all([
+    safe<readonly Card[]>(
+      'getCards',
+      () => config.edsContentEnabled ? getEdsCards(config, CARD_PREFIX) : getCards(config),
+      [],
+    ),
+    safe<readonly Article[]>(
+      'getArticles',
+      () => config.edsContentEnabled ? getEdsInsights(config, INSIGHT_PREFIX) : getArticles(config),
+      [],
+    ),
     safe<readonly Offer[]>('getOffers', () => getOffers(config), []),
     safe<readonly DisclosureCF[]>('getDisclosureCFs', () => getDisclosureCFs(config), []),
   ]);

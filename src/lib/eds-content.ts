@@ -7,8 +7,6 @@ const EDS_ORG = 'exp-workspace';
 const EDS_SITE = 'frescopa';
 const EDS_ORIGIN = `https://main--${EDS_SITE}--${EDS_ORG}.aem.live`;
 const PAGE_SIZE = 50;
-const CARD_PREFIX = '/forms/citizens/cards/';
-const INSIGHT_PREFIX = '/forms/citizens/insights/';
 
 interface ListedDocument {
   path: string;
@@ -23,11 +21,6 @@ interface ListPage {
 interface Ordered<T> {
   order: number;
   value: T;
-}
-
-export interface EdsContent {
-  readonly cards: Card[];
-  readonly articles: Article[];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -119,21 +112,23 @@ function asArticle(item: ListedDocument, config: AemConfig): Ordered<Article> {
   };
 }
 
-/** Load the full EDS index once and select the card and insight collections. */
-export async function getEdsContent(config: AemConfig): Promise<EdsContent> {
-  const cards: Ordered<Card>[] = [];
-  const articles: Ordered<Article>[] = [];
-  const endpoint = listEndpoint(config);
+async function listCollection<T>(
+  endpoint: URL,
+  prefix: string,
+  convert: (item: ListedDocument) => Ordered<T>,
+): Promise<T[]> {
+  const documents: Ordered<T>[] = [];
   const seenCursors = new Set<string>();
   let cursor: string | undefined;
 
   while (true) {
     const url = new URL(endpoint);
+    url.searchParams.set('path', prefix);
     if (cursor !== undefined) url.searchParams.set('cursor', cursor);
     url.searchParams.set('limit', String(PAGE_SIZE));
     const response = await fetch(url, { headers: { accept: 'application/json' }, cache: 'no-store' });
     if (!response.ok) {
-      throw new Error(`[eds-content] List API returned HTTP ${response.status}`);
+      throw new Error(`[eds-content] List API for "${prefix}" returned HTTP ${response.status}`);
     }
     const page = readPage(await response.json());
     for (const item of page.items) {
@@ -141,8 +136,9 @@ export async function getEdsContent(config: AemConfig): Promise<EdsContent> {
         throw new Error('[eds-content] Invalid list item');
       }
       const path = `/${item.path.replace(/^\/+/, '')}`;
-      const isCard = path.startsWith(CARD_PREFIX);
-      if (!isCard && !path.startsWith(INSIGHT_PREFIX)) continue;
+      if (!path.startsWith(prefix)) {
+        throw new Error(`[eds-content] "${path}" is outside requested path "${prefix}"`);
+      }
       if (!path.slice(path.lastIndexOf('/') + 1)) {
         throw new Error(`[eds-content] Invalid document path "${path}"`);
       }
@@ -152,15 +148,10 @@ export async function getEdsContent(config: AemConfig): Promise<EdsContent> {
       if (!('json' in item)) {
         throw new Error(`[eds-content] "${path}" has no document or error`);
       }
-      const document = { path, json: item.json };
-      if (isCard) cards.push(asCard(document, config));
-      else articles.push(asArticle(document, config));
+      documents.push(convert({ path, json: item.json }));
     }
     if (page.cursor === undefined) {
-      return {
-        cards: cards.sort((a, b) => a.order - b.order).map(({ value }) => value),
-        articles: articles.sort((a, b) => a.order - b.order).map(({ value }) => value),
-      };
+      return documents.sort((a, b) => a.order - b.order).map(({ value }) => value);
     }
     if (!page.items.length || seenCursors.has(page.cursor)) {
       throw new Error('[eds-content] List API returned an empty page or repeated cursor');
@@ -168,4 +159,12 @@ export async function getEdsContent(config: AemConfig): Promise<EdsContent> {
     seenCursors.add(page.cursor);
     cursor = page.cursor;
   }
+}
+
+export function getEdsCards(config: AemConfig, prefix: string): Promise<Card[]> {
+  return listCollection(listEndpoint(config), prefix, (item) => asCard(item, config));
+}
+
+export function getEdsInsights(config: AemConfig, prefix: string): Promise<Article[]> {
+  return listCollection(listEndpoint(config), prefix, (item) => asArticle(item, config));
 }
