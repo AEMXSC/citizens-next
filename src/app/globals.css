@@ -1705,6 +1705,9 @@ a {
 .cmp-trace-code { margin: 0 16px; padding: 10px 12px; background: var(--brand-surface); border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cmp-trace-response { max-height: 320px; overflow: auto; margin-bottom: 16px; }
 .cmp-trace-warn { margin: 12px 16px 0; color: var(--brand-ink); font-size: 12px; }
+.cmp-trace-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.cmp-trace-badge-gql { color: var(--brand-primary-dark); background: var(--brand-surface); }
+.cmp-trace-badge-worker { color: var(--brand-muted); background: #fff; }
 
 /* Comparison table */
 .cmp-h2 { font-family: var(--font-serif); font-size: 24px; color: var(--brand-primary-dark); margin: 48px 0 18px; }

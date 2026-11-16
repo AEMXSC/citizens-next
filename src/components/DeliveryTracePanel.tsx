@@ -7,24 +7,32 @@ import type { DeliveryTrace } from '@/lib/da-sc';
 
 const SOURCE_LABEL: Record<DeliveryTrace['source'], string> = {
   'content-ai-graphql': 'Content AI GraphQL',
-  'da-sc-worker': 'DA Structured Content worker',
+  'da-sc-worker': 'DA worker (JSON, not GraphQL)',
 };
+
+// Why the worker served, in plain words, so the panel never leaves it ambiguous.
+function workerReason(trace: DeliveryTrace): string {
+  return trace.fallbackReason
+    ?? 'Content AI GraphQL is not configured on this deployment (it is VPN-only; set CONTENT_AI_GQL_URL to use it).';
+}
 
 export default function DeliveryTracePanel({ trace }: { trace: DeliveryTrace }) {
   const headerLines = Object.entries(trace.headers).map(([k, v]) => `${k}: ${v}`);
+  const isGraphql = trace.source === 'content-ai-graphql';
 
   return (
     <details className="cmp-trace">
       <summary>
         Show the request
+        <span className={`cmp-trace-badge ${isGraphql ? 'cmp-trace-badge-gql' : 'cmp-trace-badge-worker'}`}>
+          {SOURCE_LABEL[trace.source]}
+        </span>
         <span className="cmp-trace-meta">
-          {SOURCE_LABEL[trace.source]} · {trace.method} · {trace.status ?? '—'} · {trace.ms} ms
+          {trace.method} · {trace.status ?? '—'} · {trace.ms} ms
         </span>
       </summary>
 
-      {trace.fallbackReason && (
-        <p className="cmp-trace-warn">Fell back to the worker: {trace.fallbackReason}</p>
-      )}
+      {!isGraphql && <p className="cmp-trace-warn">{workerReason(trace)}</p>}
 
       <p className="cmp-trace-label">{trace.endpoints.length > 1 ? 'Endpoints' : 'Endpoint'}</p>
       <pre className="cmp-trace-code">
