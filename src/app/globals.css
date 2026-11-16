@@ -1695,6 +1695,17 @@ a {
 .cmp-empty { color: var(--brand-muted); font-size: 14px; line-height: 1.6; }
 .cmp-empty code { background: #fff; border: 1px solid var(--brand-border); border-radius: 4px; padding: 1px 6px; font-size: 13px; }
 
+/* "Show the request" panel — server-side fetch made visible */
+.cmp-trace { margin-top: 16px; background: #fff; border: 1px solid var(--brand-border); border-radius: 8px; font-size: 13px; color: var(--brand-ink); }
+.cmp-trace summary { cursor: pointer; padding: 12px 16px; font-weight: 600; color: var(--brand-primary-dark); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.cmp-trace summary:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 2px; border-radius: 8px; }
+.cmp-trace-meta { font-weight: 400; color: var(--brand-muted); font-size: 12px; }
+.cmp-trace[open] summary { border-bottom: 1px solid var(--brand-border); }
+.cmp-trace-label { margin: 14px 16px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-muted); }
+.cmp-trace-code { margin: 0 16px; padding: 10px 12px; background: var(--brand-surface); border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cmp-trace-response { max-height: 320px; overflow: auto; margin-bottom: 16px; }
+.cmp-trace-warn { margin: 12px 16px 0; color: var(--brand-ink); font-size: 12px; }
+
 /* Comparison table */
 .cmp-h2 { font-family: var(--font-serif); font-size: 24px; color: var(--brand-primary-dark); margin: 48px 0 18px; }
 .cmp-table-wrap { overflow-x: auto; }
