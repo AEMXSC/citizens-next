@@ -1,7 +1,10 @@
 import { getAemConfig } from '@/lib/aem-config';
 import { getOffers, imageUrl, type Offer } from '@/lib/aem-client';
-import { getStructuredOffers, type StructuredOffer } from '@/lib/da-sc';
+import {
+  getStructuredOffersTraced, type StructuredOffer, type StructuredOffersResult,
+} from '@/lib/da-sc';
 import OfferCompareCard, { type CompareCardData } from '@/components/OfferCompareCard';
+import DeliveryTracePanel from '@/components/DeliveryTracePanel';
 
 // Side-by-side: the SAME Offer content model delivered from two Adobe-native
 // stacks. Left = AEM Content Fragment over GraphQL. Right = DA Structured
@@ -55,10 +58,12 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 
 export default async function ComparePage() {
   const config = getAemConfig();
-  const [aemAll, scAll] = await Promise.all([
+  const [aemAll, scResult] = await Promise.all([
     safe<readonly Offer[]>(() => getOffers(config), []),
-    safe<StructuredOffer[]>(() => getStructuredOffers(), []),
+    safe<StructuredOffersResult | null>(() => getStructuredOffersTraced(), null),
   ]);
+  const scAll: StructuredOffer[] = scResult?.offers ?? [];
+  const viaGraphql = scResult?.trace.source === 'content-ai-graphql';
 
   // Pair by slug so both columns show the same offers in the same order.
   const aem = SC_SLUGS
@@ -95,7 +100,10 @@ export default async function ComparePage() {
           <div className="cmp-col-head">
             <span className="cmp-persona cmp-persona-dev">Developer persona</span>
             <h2>DA Structured Content</h2>
-            <p>Developer-defined JSON schema · authored in the DA form editor · JSON worker delivery</p>
+            <p>
+              Developer-defined JSON schema · authored in the DA form editor ·{' '}
+              {viaGraphql ? 'Content AI GraphQL delivery' : 'JSON worker delivery'}
+            </p>
           </div>
           {sc.length ? sc.map((o) => <OfferCompareCard key={o.headline} o={o} />) : (
             <p className="cmp-empty">
@@ -103,6 +111,7 @@ export default async function ComparePage() {
               Offer under <code>/sc</code>, and Preview it — this column fills in automatically.
             </p>
           )}
+          {scResult && <DeliveryTracePanel trace={scResult.trace} />}
         </section>
       </div>
 
@@ -186,7 +195,7 @@ export default async function ComparePage() {
 
       <p className="cmp-note">
         Publish source: AEM publish <code>{config.publish.replace('https://', '')}</code> ·
-        {scAll[0]?.source === 'content-ai-graphql'
+        {viaGraphql
           ? <>Content AI GraphQL <code>{config.contentAiGqlUrl?.replace('https://', '')}</code></>
           : <>DA worker <code>da-sc.adobeaem.workers.dev/live/aemxsc/citizens/sc/*</code></>}
       </p>
