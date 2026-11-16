@@ -15,8 +15,8 @@ const SITE = 'citizens';
 // The Offer documents authored under the DA `sc/` folder.
 const SC_OFFER_SLUGS = ['citizens-checking', 'citizens-savings'];
 
-// The POC is VPN-only; fail fast off-VPN (e.g. on Vercel) and fall back.
-const GQL_TIMEOUT_MS = 4000;
+// The POC is VPN-only and can take ~4s to answer; give up after 10s and fall back.
+const GQL_TIMEOUT_MS = 10000;
 
 const OFFER_LIST_QUERY = `{
   offerList(filter: { condition: { selector: "path", operator: PREFIX, value: "sc/" } }) {
