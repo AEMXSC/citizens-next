@@ -1,8 +1,10 @@
 // DA Structured Content client. Reads Offer documents authored in Document
-// Authoring against the `offer` schema and delivered as JSON by the DA
-// Structured Content worker. Server-side fetch (no CORS). This is the DA-native
-// counterpart to the AEM Content Fragment path in aem-client.ts — same content
-// model, different authoring + delivery stack.
+// Authoring against the `offer` schema. Two delivery paths, same documents:
+//  - Content AI GraphQL (POC, VPN-only) when CONTENT_AI_GQL_URL is set;
+//  - the DA Structured Content worker JSON otherwise, or if GraphQL fails.
+// Server-side fetch (no CORS). This is the DA-native counterpart to the AEM
+// Content Fragment path in aem-client.ts — same content model, different
+// authoring + delivery stack.
 
 import { getAemConfig } from './aem-config';
 
@@ -13,7 +15,19 @@ const SITE = 'citizens';
 // The Offer documents authored under the DA `sc/` folder.
 const SC_OFFER_SLUGS = ['citizens-checking', 'citizens-savings'];
 
+// The POC is VPN-only; fail fast off-VPN (e.g. on Vercel) and fall back.
+const GQL_TIMEOUT_MS = 4000;
+
+const OFFER_LIST_QUERY = `{
+  offerList(filter: { condition: { selector: "path", operator: PREFIX, value: "sc/" } }) {
+    items { path data { pretitle headline detail callToAction ctaUrl heroImage } }
+  }
+}`;
+
+export type StructuredSource = 'content-ai-graphql' | 'da-sc-worker';
+
 export interface StructuredOffer {
+  readonly source: StructuredSource;
   readonly slug: string;
   readonly pretitle: string;
   readonly headline: string;
@@ -45,6 +59,7 @@ async function fetchOffer(slug: string): Promise<StructuredOffer | null> {
       const d = json.data;
       if (!d) continue;
       return {
+        source: 'da-sc-worker',
         slug,
         pretitle: d.pretitle ?? '',
         headline: d.headline ?? '',
@@ -60,7 +75,65 @@ async function fetchOffer(slug: string): Promise<StructuredOffer | null> {
   return null;
 }
 
+interface GqlOfferItem {
+  path?: string;
+  data?: Record<string, string | null>;
+}
+
+interface GqlResponse {
+  data?: { offerList?: { items?: GqlOfferItem[] } };
+  errors?: { message?: string }[];
+}
+
+// "sc/citizens-checking.html" -> "citizens-checking"
+function slugFromPath(path: string): string {
+  return (path.split('/').pop() ?? '').replace(/\.html$/, '');
+}
+
+async function fetchOffersFromGraphql(url: string): Promise<StructuredOffer[]> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-content-ai-routing': JSON.stringify({ org: ORG, site: SITE }),
+    },
+    body: JSON.stringify({ query: OFFER_LIST_QUERY }),
+    cache: 'no-store',
+    signal: AbortSignal.timeout(GQL_TIMEOUT_MS),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = (await res.json()) as GqlResponse;
+  if (json.errors?.length) throw new Error(json.errors[0].message ?? 'GraphQL error');
+  const items = json.data?.offerList?.items ?? [];
+  const bySlug = new Map(items.map((it) => [slugFromPath(it.path ?? ''), it.data ?? {}]));
+  // Keep the same offers, in the same order, as the worker path.
+  return SC_OFFER_SLUGS.flatMap((slug): StructuredOffer[] => {
+    const d = bySlug.get(slug);
+    if (!d) return [];
+    return [{
+      source: 'content-ai-graphql',
+      slug,
+      pretitle: d.pretitle ?? '',
+      headline: d.headline ?? '',
+      detail: d.detail ?? '',
+      callToAction: d.callToAction ?? '',
+      ctaUrl: d.ctaUrl ?? '',
+      heroImage: resolveImage(d.heroImage ?? ''),
+    }];
+  });
+}
+
 export async function getStructuredOffers(): Promise<StructuredOffer[]> {
+  const { contentAiGqlUrl } = getAemConfig();
+  if (contentAiGqlUrl) {
+    try {
+      const offers = await fetchOffersFromGraphql(contentAiGqlUrl);
+      if (offers.length > 0) return offers;
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(`[da-sc] Content AI GraphQL unavailable, using da-sc worker: ${String(err)}`);
+    }
+  }
   const results = await Promise.all(SC_OFFER_SLUGS.map((s) => fetchOffer(s)));
   const out: StructuredOffer[] = [];
   for (const o of results) {

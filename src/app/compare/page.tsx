@@ -186,7 +186,9 @@ export default async function ComparePage() {
 
       <p className="cmp-note">
         Publish source: AEM publish <code>{config.publish.replace('https://', '')}</code> ·
-        DA worker <code>da-sc.adobeaem.workers.dev/live/aemxsc/citizens/sc/*</code>
+        {scAll[0]?.source === 'content-ai-graphql'
+          ? <>Content AI GraphQL <code>{config.contentAiGqlUrl?.replace('https://', '')}</code></>
+          : <>DA worker <code>da-sc.adobeaem.workers.dev/live/aemxsc/citizens/sc/*</code></>}
       </p>
     </main>
   );
